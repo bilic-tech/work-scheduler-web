@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: leavewise-postgres
+    environment:
+      POSTGRES_USER: leavewise
+      POSTGRES_PASSWORD: leavewise
+      POSTGRES_DB: leavewise
+    ports:
+      - "5433:5432"
+    volumes:
+      - leavewise_pg:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/001_schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leavewise -d leavewise"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: leavewise-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  leavewise_pg:
